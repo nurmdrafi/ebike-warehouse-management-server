@@ -5,7 +5,7 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 const ObjectId = require("mongodb").ObjectId;
 const port = process.env.POST || 5000;
 
-require('dotenv').config();
+require("dotenv").config();
 
 // use middleware
 app.use(cors());
@@ -25,12 +25,24 @@ async function run() {
       .db("warehouseManagement")
       .collection("inventory");
 
+    // load all items
+    // http://localhost:5000/inventory
     app.get("/inventory", async (req, res) => {
       const query = req.query;
       const cursor = inventoryCollection.find(query);
-      const inventory = await cursor.toArray();
+      const items = await cursor.toArray();
       console.log("mongodb connected");
-      res.send(inventory);
+      res.send(items);
+    });
+
+    // load single item by /:id
+    // http://localhost:5000/inventory/62700f1aa08c33daafab132c
+    app.get("/inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const singleItem = await inventoryCollection.findOne(query);
+      // const singleItem = await cursor.toArray();
+      res.send(singleItem);
     });
   } finally {
     //   await client.close();
