@@ -44,6 +44,23 @@ async function run() {
       // const singleItem = await cursor.toArray();
       res.send(singleItem);
     });
+
+    // Add new item to inventory
+    app.post("/add-inventory", async (req, res) =>{
+      const data = req.body;
+      const result = await inventoryCollection.insertOne(data);
+      res.send(result)
+    })
+
+    // Delete item from inventory
+    // http://localhost:5000/inventory/62700f1aa08c33daafab132c
+    app.delete("/inventory/:id", async (req, res) =>{
+      const id = req.params.id;
+      console.log(id)
+      const query = { _id: ObjectId(id) };
+      const deleteItem = await inventoryCollection.deleteOne(query);
+      res.send(deleteItem);
+    })
   } finally {
     //   await client.close();
   }
