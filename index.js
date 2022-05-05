@@ -37,8 +37,8 @@ async function run() {
 
     // load single item by /:id
     // http://localhost:5000/inventory/62700f1aa08c33daafab132c
-    app.get("/inventory/:id", async (req, res) => {
-      const id = req.params.id;
+    app.get("/inventory/:_id", async (req, res) => {
+      const id = req.params._id;
       const query = { _id: ObjectId(id) };
       const singleItem = await inventoryCollection.findOne(query);
       // const singleItem = await cursor.toArray();
@@ -54,13 +54,45 @@ async function run() {
 
     // Delete item from inventory
     // http://localhost:5000/inventory/62700f1aa08c33daafab132c
-    app.delete("/inventory/:id", async (req, res) =>{
-      const id = req.params.id;
-      console.log(id)
+    app.delete("/inventory/:_id", async (req, res) =>{
+      const id = req.params._id;
       const query = { _id: ObjectId(id) };
       const deleteItem = await inventoryCollection.deleteOne(query);
       res.send(deleteItem);
     })
+
+    // Decrease value by 1
+    app.put("/inventory/:_id", async (req,res) =>{
+      const id = req.params._id;
+    const data = req.body;
+    const filter = { _id: ObjectId(id) };
+    const options = { upsert: true };
+
+    const updateNote = {
+      $set: {
+        quantity: data.quantity,
+      },
+    };
+    const result = await inventoryCollection.updateOne(filter, updateNote, options);
+    res.send(result)
+    })
+
+    // Increase value by input
+    app.put("/inventory/:_id", async (req,res) =>{
+    const id = req.params._id;
+    const data = req.body;
+    const filter = { _id: ObjectId(id) };
+    const options = { upsert: true };
+
+    const updateNote = {
+      $set: {
+        quantity: data.quantity,
+      },
+    };
+    const result = await inventoryCollection.updateOne(filter, updateNote, options);
+    res.send(result)
+    })
+
   } finally {
     //   await client.close();
   }
