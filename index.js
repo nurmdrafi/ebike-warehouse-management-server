@@ -26,7 +26,7 @@ async function run() {
       .collection("inventory");
 
     // load all items
-    // http://localhost:5000/inventory
+    // https://ebike-warehouse.herokuapp.com/inventory
     app.get("/inventory", async (req, res) => {
       const query = req.query;
       const cursor = inventoryCollection.find(query);
@@ -36,7 +36,7 @@ async function run() {
     });
 
     // load single item by /:id
-    // http://localhost:5000/inventory/62700f1aa08c33daafab132c
+    // https://ebike-warehouse.herokuapp.com/${_id}
     app.get("/inventory/:_id", async (req, res) => {
       const id = req.params._id;
       const query = { _id: ObjectId(id) };
@@ -45,7 +45,19 @@ async function run() {
       res.send(singleItem);
     });
 
+    // load items by email
+    // https://ebike-warehouse.herokuapp.com?userEmail=${email}
+    app.get("/inventory", async(req, res) =>{
+      const query = req.query;
+      console.log(query)
+      const cursor = inventoryCollection.find(query);
+      const items =  await cursor.toArray();
+      console.log(items)
+      res.send(items)
+    })
+
     // Add new item to inventory
+    // https://ebike-warehouse.herokuapp.com/add-inventory
     app.post("/add-inventory", async (req, res) =>{
       const data = req.body;
       const result = await inventoryCollection.insertOne(data);
@@ -53,7 +65,7 @@ async function run() {
     })
 
     // Delete item from inventory
-    // http://localhost:5000/inventory/62700f1aa08c33daafab132c
+    // https://ebike-warehouse.herokuapp.com/inventory/${_id}
     app.delete("/inventory/:_id", async (req, res) =>{
       const id = req.params._id;
       const query = { _id: ObjectId(id) };
@@ -62,6 +74,7 @@ async function run() {
     })
 
     // Decrease value by 1
+    // https://ebike-warehouse.herokuapp.com/inventory/${_id}
     app.put("/inventory/:_id", async (req,res) =>{
       const id = req.params._id;
     const data = req.body;
@@ -78,6 +91,7 @@ async function run() {
     })
 
     // Increase value by input
+    // https://ebike-warehouse.herokuapp.com/inventory/${_id}
     app.put("/inventory/:_id", async (req,res) =>{
     const id = req.params._id;
     const data = req.body;
