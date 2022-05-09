@@ -15,12 +15,12 @@ app.use(express.json());
 // verify jwt
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
-  console.log(authHeader);
+  console.log("authHeader", authHeader);
 
   if (!authHeader) {
     return res.status(401).send({ message: "Unauthorized access" });
   }
-  const token =  authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1];
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       return res.status(403).send({ message: "Forbidden access" });
@@ -30,7 +30,6 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.iukjo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -49,8 +48,10 @@ async function run() {
     // Create jwt token while login
     app.post("/login", async (req, res) => {
       const user = req.body;
+      console.log("user", user)
+      console.log("server login", user)
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "30d",
       });
       res.send({ accessToken });
     });
@@ -65,17 +66,16 @@ async function run() {
       res.send(items);
     });
 
-    
-
     // load items by email
     // https://ebike-warehouse.herokuapp.com/myitems?userEmail=${email}
     app.get("/myitems", authenticateToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
-      const email = req.query.email;
-      console.log(email, decodedEmail);
-      console.log("access")
+      const email = req.query.userEmail;
+      // console.log("req.query", req.query)
+      // console.log("email", email);
+      // console.log("decodedEmail", decodedEmail);
       if (email === decodedEmail) {
-        const query = { email: email };
+        const query = { userEmail: email };
         const cursor = inventoryCollection.find(query);
         const items = await cursor.toArray();
         res.send(items);
