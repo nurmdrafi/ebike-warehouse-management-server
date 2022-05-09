@@ -15,6 +15,8 @@ app.use(express.json());
 // verify jwt
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
+  console.log(authHeader);
+
   if (!authHeader) {
     return res.status(401).send({ message: "Unauthorized access" });
   }
@@ -63,21 +65,15 @@ async function run() {
       res.send(items);
     });
 
-    // load single item by /:id
-    // https://ebike-warehouse.herokuapp.com/${_id}
-    app.get("/inventory/:_id", async (req, res) => {
-      const id = req.params._id;
-      const query = { _id: ObjectId(id) };
-      const singleItem = await inventoryCollection.findOne(query);
-      // const singleItem = await cursor.toArray();
-      res.send(singleItem);
-    });
+    
 
     // load items by email
-    // https://ebike-warehouse.herokuapp.com/inventory?userEmail=${email}
-    app.get("/inventory", authenticateToken, async (req, res) => {
+    // https://ebike-warehouse.herokuapp.com/myitems?userEmail=${email}
+    app.get("/myitems", authenticateToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.query.email;
+      console.log(email, decodedEmail);
+      console.log("access")
       if (email === decodedEmail) {
         const query = { email: email };
         const cursor = inventoryCollection.find(query);
@@ -86,6 +82,16 @@ async function run() {
       } else {
         res.status(403).send({ message: "Forbidden access" });
       }
+    });
+
+    // load single item by /:id
+    // https://ebike-warehouse.herokuapp.com/${_id}
+    app.get("/inventory/:_id", async (req, res) => {
+      const id = req.params._id;
+      const query = { _id: ObjectId(id) };
+      const singleItem = await inventoryCollection.findOne(query);
+      // const singleItem = await cursor.toArray();
+      res.send(singleItem);
     });
 
     // Add new item to inventory
