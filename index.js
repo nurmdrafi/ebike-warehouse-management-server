@@ -14,8 +14,7 @@ app.use(express.json());
 
 // verify jwt
 function authenticateToken(req, res, next) {
-  // const authHeader = req.headers.authorization;
-  const authHeader = req.headers['authorization']
+  const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send({ message: "Unauthorized access" });
   }
@@ -74,27 +73,18 @@ async function run() {
       res.send(singleItem);
     });
 
-    // https://ebike-warehouse.herokuapp.com?userEmail=${email}
-    // app.get("/inventory", async (req, res) => {
-    //   const query = req.query;
-    //   console.log(query);
-    //   const cursor = inventoryCollection.find(query);
-    //   const items = await cursor.toArray();
-    //   console.log(items);
-    //   res.send(items);
-    // });
-
     // load items by email
+    // https://ebike-warehouse.herokuapp.com/inventory?userEmail=${email}
     app.get("/inventory", authenticateToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.query.email;
       if (email === decodedEmail) {
         const query = { email: email };
-        const cursor = orderCollection.find(query);
-        const orders = await cursor.toArray();
-        res.send(orders);
+        const cursor = inventoryCollection.find(query);
+        const items = await cursor.toArray();
+        res.send(items);
       } else {
-        res.status(403).send({ message: "forbidden access" });
+        res.status(403).send({ message: "Forbidden access" });
       }
     });
 
